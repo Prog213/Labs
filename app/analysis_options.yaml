@@ -10,7 +10,7 @@ analyzer:
     dead_code: error
     unused_import: error
     unused_element: ignore
-
+    
 linter:
   rules:
     - always_use_package_imports
