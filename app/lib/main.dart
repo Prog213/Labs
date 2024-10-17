@@ -1,9 +1,10 @@
-import 'package:app/pages/home.dart';
+import 'package:app/home_page.dart';
+import 'package:app/login_page.dart';
+import 'package:app/profile_page.dart';
+import 'package:app/registration_page.dart';
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MainApp());
-}
+void main() => runApp(const MyApp());
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
@@ -11,13 +12,22 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-      colorScheme: 
-      ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 0, 255, 42)),
-      ),
+      title: 'Flutter Lab',
       debugShowCheckedModeBanner: false,
-      home: const HomePage(),
+
+      theme: ThemeData(
+        colorScheme: 
+        ColorScheme.fromSeed(seedColor: Colors.brown.shade800),
+        useMaterial3: true,
+      ),
+
+      home: const LoginPage(),
+      routes: {
+        '/login': (context) => const LoginPage(),
+        '/register': (context) => const RegistrationPage(),
+        '/profile': (context) => const ProfilePage(),
+        '/home': (context) => const HomePage(),
+      },
     );
   }
 }
