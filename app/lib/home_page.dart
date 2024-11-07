@@ -1,6 +1,10 @@
+import 'dart:async';
+
+import 'package:app/network.dart';
 import 'package:app/tea.dart';
 import 'package:app/user/user_service.dart';
 import 'package:app/user/user_state.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,11 +19,25 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   dynamic teas = [];
   String email = '';
+  final NetworkService _networkService = NetworkService();
+  late StreamSubscription<List<ConnectivityResult>> _networkSubscription;
 
   @override
   void initState() {
     super.initState();
     _loadTeas();
+
+    _networkSubscription = _networkService.listenForNetworkChanges().listen((result) {
+      if (result.last == ConnectivityResult.none) {
+        _networkService.showNoConnectionDialog(context);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _networkSubscription.cancel();
+    super.dispose();
   }
 
   // Завантажуємо чаї користувача

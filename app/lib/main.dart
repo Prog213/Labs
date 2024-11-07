@@ -15,30 +15,43 @@ void main() async {
   final appDocumentDir = await getApplicationDocumentsDirectory();
   await Hive.initFlutter(appDocumentDir.path);
 
+  final sessionBox = await Hive.openBox('sessionBox');
+  final String? loggedInUser = sessionBox.get('loggedInUser') as String?;
+
   runApp(
     ChangeNotifierProvider(
       create: (context) => UserState(),
-      child: const MainApp(),
+      child: MainApp(
+        initialRoute: loggedInUser != null ? '/home' : '/login',
+        // initialRoute: '/login',
+        loggedInUser: loggedInUser,
+      ),
     ),
   );
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+  final String initialRoute;
+  final String? loggedInUser;
+
+  const MainApp({required this.initialRoute, super.key, this.loggedInUser});
 
   @override
   Widget build(BuildContext context) {
+
+    if (loggedInUser != null) {
+      Provider.of<UserState>(context, listen: false).setEmail(loggedInUser!);
+    }
+
     return MaterialApp(
       title: 'Flutter Lab',
       debugShowCheckedModeBanner: false,
-
       theme: ThemeData(
         colorScheme: 
         ColorScheme.fromSeed(seedColor: Colors.brown.shade800),
         useMaterial3: true,
       ),
-
-      home: const LoginPage(),
+      initialRoute: initialRoute,
       routes: {
         '/login': (context) => const LoginPage(),
         '/register': (context) => const RegistrationPage(),

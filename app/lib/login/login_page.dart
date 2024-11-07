@@ -1,4 +1,5 @@
 import 'package:app/login/login_service.dart';
+import 'package:app/network.dart';
 import 'package:app/user/user_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -18,21 +19,53 @@ class _LoginPageState extends State<LoginPage> {
   String? _errorMessage;
 
   Future<void> _login() async {
-    final email = _emailController.text;
-    final password = _passwordController.text;
+  final email = _emailController.text;
+  final password = _passwordController.text;
+  final NetworkService _networkService = NetworkService();
 
-    // Отримуємо повідомлення про помилку, якщо є
-    final String? error = await _loginService.login(email, password);
-
-    if (error != null) {
-      setState(() {
-        _errorMessage = error;
-      });
-    } else {
-      Provider.of<UserState>(context, listen: false).setEmail(email);
-      Navigator.pushNamed(context, '/home');
-    }
+  // Отримуємо повідомлення про помилку, якщо є
+  if (!await _networkService.isConnected()) {
+    // No internet connection
+    _networkService.showNoConnectionDialog(context);
+    return;
   }
+  final String? error = await _loginService.login(email, password);
+
+  if (error != null) {
+    setState(() {
+      _errorMessage = error;
+    });
+
+    // Show error notification
+    await _showDialog('Error', error);
+  } else {
+    // Show success notification
+    await _showDialog('Success', 'Login successful!');
+
+    Provider.of<UserState>(context, listen: false).setEmail(email);
+    Navigator.pushNamed(context, '/home');
+  }
+}
+
+Future<void> _showDialog(String title, String message) async {
+  return showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -56,12 +89,6 @@ class _LoginPageState extends State<LoginPage> {
                 decoration: const InputDecoration(labelText: 'Password'),
                 obscureText: true,
               ),
-              const SizedBox(height: 24),
-              if (_errorMessage != null)
-                Text(
-                  _errorMessage!,
-                  style: const TextStyle(color: Colors.red),
-                ),
               const SizedBox(height: 16),
               TextButton(
                 child: const Text('Login'),

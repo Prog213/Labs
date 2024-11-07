@@ -22,16 +22,43 @@ class _RegistrationPageState extends State<RegistrationPage> {
     final confirmPassword = _confirmPasswordController.text;
 
     // Отримання повідомлення про помилку, якщо є
-    final String? error = await _registrationService.register(email, password, confirmPassword);
+    final String? error =
+        await _registrationService.register(email, password, confirmPassword);
 
     if (error != null) {
       setState(() {
         _errorMessage = error;
       });
+
+      // Show error notification
+      _showDialog('Error', error);
     } else {
+      // Show success notification
+      _showDialog('Success', 'Registration successful!');
+
       // Якщо реєстрація успішна, переходимо на логін сторінку
       Navigator.pushNamed(context, '/login');
     }
+  }
+
+  void _showDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -59,15 +86,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
               const SizedBox(height: 16),
               TextField(
                 controller: _confirmPasswordController,
-                decoration: const InputDecoration(labelText: 'Confirm Password'),
+                decoration:
+                    const InputDecoration(labelText: 'Confirm Password'),
                 obscureText: true,
               ),
-              const SizedBox(height: 24),
-              if (_errorMessage != null)
-                Text(
-                  _errorMessage!,
-                  style: const TextStyle(color: Colors.red),
-                ),
               const SizedBox(height: 16),
               TextButton(
                 child: const Text('Register'),
@@ -80,4 +102,3 @@ class _RegistrationPageState extends State<RegistrationPage> {
     );
   }
 }
-

@@ -9,4 +9,8 @@ class UserState with ChangeNotifier {
     _email = newEmail;
     notifyListeners();
   }
+
+  void clearUserData(){
+    _email = '';
+  }
 }
